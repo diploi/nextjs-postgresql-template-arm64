@@ -1,4 +1,4 @@
-FROM node:16.13-slim
+FROM node:20.3.0-slim
 
 # This dockerfile is run by diploi image builder, it will have 
 # this template repository as it's base and the actual project
