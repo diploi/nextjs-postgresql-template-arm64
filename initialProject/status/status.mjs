@@ -130,6 +130,8 @@ const requestListener = async (req, res) => {
 const server = http.createServer(requestListener);
 server.listen(3000, '0.0.0.0');
 
+console.log('🌎  Status Server Started ' + new Date().toISOString());
+
 const podReadinessLoop = async () => {
   const status = await getStatus();
   let allOK = !status.items.find((s) => s.status !== Status.GREEN);
