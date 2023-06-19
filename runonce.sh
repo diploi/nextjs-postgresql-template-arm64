@@ -1,7 +1,13 @@
 #!/bin/sh
 
+progress() {
+  current_date=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+  local action="$1"
+  echo "🟩 $current_date $action"
+}
+
 # Perform tasks at controller pod startup
-echo "Runonce started";
+progress "Runonce started";
 
 # Insert accepted ssh key(s)
 cat /etc/ssh/internal_ssh_host_rsa.pub >> /root/.ssh/authorized_keys;
@@ -12,18 +18,23 @@ cd /app;
 # Intialize persistant storage
 if [ ! "$(ls -A /app)" ]; then
 
-  echo "Empty /app, assuming development instance setup was intended"
+  echo "Empty /app, assuming development instance setup was intended";
+  
   #tar zxf /var/lib/diploi-app.tar.gz  -C /
   mkdir -p /root-persist/.vscode-server;
   touch /root-persist/.bash_history;
   touch /root-persist/.gitconfig;
 
+  progress "Pulling code";
+  
   git init;
   git config credential.helper '!diploi-credential-helper';
   git remote add --fetch origin $REPOSITORY_URL;
   git checkout -f $REPOSITORY_BRANCH;
   git remote set-url origin "$REPOSITORY_URL";
   git config --unset credential.helper;
+
+  
   
   # Configure the SQLTools VSCode extension
   # TODO: How to update these if env changes?
@@ -44,6 +55,7 @@ if [ ! "$(ls -A /app)" ]; then
 }
 EOL
 
+  progress "Installing";
   npm install;
 
 fi
@@ -57,6 +69,6 @@ env >> /etc/environment
 # Now that everything is initialized, start all services
 supervisorctl start www
 
-echo "Runonce done";
+progress "Runonce done";
 
 exit 0;
