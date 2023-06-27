@@ -1,4 +1,4 @@
-name: DiploiTemplateBuild
+name: DiploiInitialProjectBuild
 
 on:
   push:
