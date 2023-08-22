@@ -66,6 +66,10 @@ update-ca-certificates
 # Make all special env variables available in ssh also (ssh will wipe out env by default)
 env >> /etc/environment
 
+# Seed database
+# NOTE! Not ideal, this assumes postgres starts faster than app container
+node /app/lib/seedDatabase.js
+
 # Now that everything is initialized, start all services
 supervisorctl start www
 
