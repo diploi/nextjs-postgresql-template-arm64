@@ -1,6 +1,8 @@
 import http from 'http';
 import { shellExec } from './shellExec.mjs';
 
+const timeStart = new Date().getTime();
+
 const Status = {
   GREEN: 'green',
   YELLOW: 'yellow',
@@ -50,6 +52,14 @@ const getWWWStatus = async () => {
       return {
         status: Status.GREEN,
         message: '',
+      };
+    }
+
+    // Give Next.js some time before returning error
+    if ((new Date().getTime() - timeStart) / 1000 < 30) {
+      return {
+        status: Status.YELLOW,
+        message: 'Waiting for Next.js...',
       };
     }
 
