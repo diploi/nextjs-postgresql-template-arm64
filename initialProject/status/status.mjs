@@ -46,32 +46,15 @@ const getSupervisorStatus = async (name, process) => {
 };
 
 const getWWWStatus = async () => {
+  const belowYellowThreshold = (new Date().getTime() - timeStart) / 1000 < 30;
   try {
     const nextjsResponse = (await shellExec('curl http://localhost')).stdout;
-    if (nextjsResponse && nextjsResponse.includes('__NEXT_DATA__')) {
-      return {
-        status: Status.GREEN,
-        message: '',
-      };
-    }
-
-    // Give Next.js some time before returning error
-    if ((new Date().getTime() - timeStart) / 1000 < 30) {
-      return {
-        status: Status.YELLOW,
-        message: 'Waiting for Next.js...',
-      };
-    }
-
-    return {
-      status: Status.RED,
-      message: 'Next.js is not responding',
-    };
+    if (nextjsResponse && nextjsResponse.includes('__NEXT_DATA__')) return { status: Status.GREEN, message: '' };
+    if (belowYellowThreshold) return { status: Status.YELLOW, message: 'Waiting for Next.js...' };
+    return { status: Status.RED, message: 'Next.js is not responding' };
   } catch {
-    return {
-      status: Status.RED,
-      message: 'Failed to query Next.js status',
-    };
+    if (belowYellowThreshold) return { status: Status.YELLOW, message: 'Waiting for Next.js...' };
+    return { status: Status.RED, message: 'Failed to query Next.js status' };
   }
 };
 
