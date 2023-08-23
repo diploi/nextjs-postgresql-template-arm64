@@ -46,14 +46,11 @@ const getSupervisorStatus = async (name, process) => {
 };
 
 const getWWWStatus = async () => {
-  const belowYellowThreshold = (new Date().getTime() - timeStart) / 1000 < 30;
   try {
     const nextjsResponse = (await shellExec('curl http://localhost')).stdout;
     if (nextjsResponse && nextjsResponse.includes('__NEXT_DATA__')) return { status: Status.GREEN, message: '' };
-    if (belowYellowThreshold) return { status: Status.YELLOW, message: 'Waiting for Next.js...' };
     return { status: Status.RED, message: 'Next.js is not responding' };
   } catch {
-    if (belowYellowThreshold) return { status: Status.YELLOW, message: 'Waiting for Next.js...' };
     return { status: Status.RED, message: 'Failed to query Next.js status' };
   }
 };
@@ -90,8 +87,8 @@ const getPostgresStatus = async () => {
 };
 
 const getStatus = async () => {
+  // First see if supervisor has started www
   const wwwProcessStatus = await getSupervisorStatus('Next.js', 'www');
-
   let wwwStatus = {
     identifier: 'www',
     name: 'Next.js',
@@ -99,8 +96,16 @@ const getStatus = async () => {
     ...wwwProcessStatus,
   };
 
+  // Then check if site is running
   if (wwwProcessStatus.status === Status.GREEN) {
     wwwStatus = { ...wwwStatus, ...(await getWWWStatus()) };
+  }
+
+  // Exception... Don't show red until some time has passed
+  const belowYellowThreshold = (new Date().getTime() - timeStart) / 1000 < 30;
+  if (wwwStatus.status === Status.RED && belowYellowThreshold) {
+    wwwStatus.status = Status.YELLOW;
+    wwwStatus.message = 'Waiting for Next.js...';
   }
 
   const status = {
