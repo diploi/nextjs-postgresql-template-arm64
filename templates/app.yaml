@@ -136,7 +136,6 @@ spec:
         - name: root-mount
           hostPath:
             path: {{ .Values.storage.app.hostPath }}/root
-            type: FileOrCreate
         {{- end }}
         - name: ssh-keys
           secret:
