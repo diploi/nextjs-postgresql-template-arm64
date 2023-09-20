@@ -120,12 +120,8 @@ spec:
             {{- if hasKey .Values.storage "app" }}
             - name: app-mount
               mountPath: /app
-            - name: bash-history
-              mountPath: /root/.bash_history
-            - name: vscode-server
-              mountPath: /root/.vscode-server
-            - name: git-config
-              mountPath: /root/.gitconfig
+            - name: root-mount
+              mountPath: /root
             {{- end }}
             - name: ssh-keys
               mountPath: /etc/ssh/internal_ssh_host_rsa.pub
@@ -137,17 +133,9 @@ spec:
         - name: app-mount
           hostPath:
             path: {{ .Values.storage.app.hostPath }}/app
-        - name: bash-history
+        - name: root-mount
           hostPath:
-            path: {{ .Values.storage.app.hostPath }}/root-persist/.bash_history
-            type: FileOrCreate
-        - name: vscode-server
-          hostPath:
-            path: {{ .Values.storage.app.hostPath }}/root-persist/.vscode-server
-            type: DirectoryOrCreate
-        - name: git-config
-          hostPath:
-            path: {{ .Values.storage.app.hostPath }}/root-persist/.gitconfig
+            path: {{ .Values.storage.app.hostPath }}/root
             type: FileOrCreate
         {{- end }}
         - name: ssh-keys

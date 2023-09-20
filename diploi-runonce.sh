@@ -9,8 +9,10 @@ progress() {
 # Perform tasks at controller pod startup
 progress "Runonce started";
 
-# Insert accepted ssh key(s)
-cat /etc/ssh/internal_ssh_host_rsa.pub >> /root/.ssh/authorized_keys;
+# Set accepted ssh key(s)
+mkdir -p /root/.ssh;
+chmod 0700 /root/.ssh;
+cat /etc/ssh/internal_ssh_host_rsa.pub > /root/.ssh/authorized_keys;
 
 cd /app;
 
@@ -19,11 +21,12 @@ cd /app;
 if [ ! "$(ls -A /app)" ]; then
 
   echo "Empty /app, assuming development instance setup was intended";
-  
-  #tar zxf /var/lib/diploi-app.tar.gz  -C /
-  mkdir -p /root-persist/.vscode-server;
-  touch /root-persist/.bash_history;
-  touch /root-persist/.gitconfig;
+
+  # Make /app default folder  
+  echo "cd /app;" >> /root/.bashrc
+
+  # Generate root ssh key
+  ssh-keygen -A;
 
   progress "Pulling code";
   
@@ -33,8 +36,6 @@ if [ ! "$(ls -A /app)" ]; then
   git checkout -f $REPOSITORY_BRANCH;
   git remote set-url origin "$REPOSITORY_URL";
   git config --unset credential.helper;
-
-  
   
   # Configure the SQLTools VSCode extension
   # TODO: How to update these if env changes?

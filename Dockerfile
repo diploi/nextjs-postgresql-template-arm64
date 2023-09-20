@@ -10,6 +10,7 @@ RUN apt-get update && apt-get install -y nano supervisor openssh-server git bash
 # Install PostgreSQL client
 RUN apt-get install -y postgresql-client
 
+# SSH keys and some login related stuff (some work only for prod)
 RUN mkdir -p /run/sshd /root/.ssh \
   && chmod 0700 /root/.ssh \
   && ssh-keygen -A \
@@ -31,6 +32,6 @@ RUN ln -s /etc/diploi-git/gitconfig /etc/gitconfig
 COPY diploi-credential-helper /usr/local/bin
 
 # Init and run supervisor
-COPY runonce.sh /root/runonce.sh
+COPY diploi-runonce.sh /usr/local/bin/diploi-runonce.sh
 COPY supervisord.conf /etc/supervisord.conf
 CMD /usr/bin/supervisord -c /etc/supervisord.conf
